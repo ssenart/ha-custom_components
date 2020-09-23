@@ -1,0 +1,13 @@
+{
+  "domain": "veoliaidf",
+  "name": "VeoliaIDF",
+  "documentation": "https://www.home-assistant.io/components/veoliaidf",
+  "requirements": [
+    "pyveoliaidf==0.1.9"
+  ],
+  "dependencies": [],
+  "codeowners": [
+    "ssenart"
+  ]
+}
+

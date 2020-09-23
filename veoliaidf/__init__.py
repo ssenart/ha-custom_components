@@ -1,0 +1,1 @@
+"""The veoliaidf component."""
