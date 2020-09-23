@@ -169,13 +169,27 @@ class NetatmoCamera(NetatmoBase, Camera):
         if not data.get("camera_id"):
             return
 
+        _LOGGER.info("handle_event: %s", data)
+
         if data["home_id"] == self._home_id and data["camera_id"] == self._id:
-            if data["push_type"] in ["NACamera-off", "NACamera-disconnection"]:
+            if data["push_type"] in ["NOC-disconnection", "NACamera-disconnection"]:
                 self.is_streaming = False
-                self._status = "off"
-            elif data["push_type"] in ["NACamera-on", "NACamera-connection"]:
+                self._alim_status = "off"
+            elif data["push_type"] in ["NOC-connection", "NACamera-connection"]:
+                self.is_streaming = True
+                self._alim_status = "on"
+            elif data["push_type"] in ["NACamera-on"]:
                 self.is_streaming = True
                 self._status = "on"
+            elif data["push_type"] in ["NACamera-off"]:
+                self.is_streaming = False
+                self._status = "off"
+            elif data["push_type"] in ["NOC-on"]:
+                self.is_streaming = True
+                self._status = "on"
+            elif data["push_type"] in ["NOC-off"]:
+                self.is_streaming = False
+                self._status = "off"
 
             self.async_write_ha_state()
             return
@@ -277,7 +291,7 @@ class NetatmoCamera(NetatmoBase, Camera):
         self._sd_status = camera.get("sd_status")
         self._alim_status = camera.get("alim_status")
         self._is_local = camera.get("is_local")
-        self.is_streaming = bool(self._status == "on")
+        self.is_streaming = bool(self._alim_status == "on") if self._model == "NOC" else bool(self._status == "on")
 
         if self._model == "NACamera":  # Smart Indoor Camera
             self.hass.data[DOMAIN][DATA_EVENTS][self._id] = self.process_events(
