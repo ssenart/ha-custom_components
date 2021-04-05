@@ -3,7 +3,7 @@
   "name": "Gazpar",
   "documentation": "https://www.home-assistant.io/components/gazpar",
   "requirements": [
-    "pygazpar==0.1.16"
+    "pygazpar==0.1.17"
   ],
   "dependencies": [],
   "codeowners": [
