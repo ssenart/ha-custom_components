@@ -1,9 +1,10 @@
 {
   "domain": "gazpar",
   "name": "Gazpar",
-  "documentation": "https://www.home-assistant.io/components/gazpar",
+  "version": "0.1.25",
+  "issue_tracker": "https://github.com/ssenart/PyGazpar/issues",
   "requirements": [
-    "pygazpar==0.1.24"
+    "pygazpar==0.1.25"
   ],
   "dependencies": [],
   "codeowners": [
