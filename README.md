@@ -1,7 +1,113 @@
 # ha-custom_components
-Some custom components for Home Assistant
+Some custom components for HA (Home Assistant).
 
-gazpar and veoliaidf are using selenium with geckodriver to retrieve their data from the corresponding web site.
+## Gazpar
+Gazpar custom component is using PyGazpar library to retrieve GrDF data.
+PyGazpar library relies on Selenium and geckodriver application (see https://github.com/ssenart/PyGazpar for details).
+
+### Installation steps of gazpar are :
+
+1. Copy the gazpar directory in HA config/custom_components directory.
+
+2. Copy your Selenium geckodriver binary in HA config/drivers directory. Ensure it has the execution permission from the runtime environment HA is running on. Geckodriver releases are available here : https://github.com/mozilla/geckodriver/releases.
+
+3. Install a compatible version Firefox on HA host. Ensure this version is in the PATH and HA can run it.
+
+4. Update your HA configuration with :
+
+```yaml
+sensor:
+- platform: gazpar
+    username: ***
+    password: ***
+    webdriver: /config/drivers/geckodriver
+    tmpdir: /tmp
+    scan_interval: 01:00:00
+```
+
+5. Restart your HA application. In HA development panel, you should see the new Gazpar entities :
+- sensor.gazpar_last_converter_factor
+- sensor.gazpar_last_end_index
+- sensor.gazpar_last_energy
+- sensor.gazpar_last_period_end_time
+- sensor.gazpar_last_period_start_time
+- sensor.gazpar_last_start_index
+- sensor.gazpar_last_temperature
+- sensor.gazpar_last_volume
+
+### Troubleshooting
+
+1. If the Gazpar entities does not show up few minutes after restart, something goes wrong.
+To troubleshoot what is wrong, you can activate Gazpar logging by adding the following in HA configuration :
+
+```yaml
+logger:
+  default: warning
+  logs:
+    custom_components.gazpar: debug
+    pygazpar: debug
+```
+
+2. If the problem seems to come from PyGazpar library integration, please refer to https://github.com/ssenart/PyGazpar and try to make the pygazpar command line work first and get your data. The pygazpar command line must work in the same runtime HA is running in (same host, same docker container or same VM...).
+
+## Veoliaidf
+TODO
+
+## Netatmo
+TODO
+
+## Note about using geckodriver in a Docker container
+
+I am using the official HA image homeassistant/home-assistant:latest on Intel family processor.
+HA image is based on Alpine Linux distribution. The corresponding Alpine Hardware Architecture for me is x86_64 (see wiki.alpinelinux.org/wiki/Architecture).
+I'm using the geckodriver built for this architecture exactly :
+- See the geckodriver releases by architecture here : https://github.com/mozilla/geckodriver/releases.
+- For HassIO users, refer the next note in this document.
+
+A first check to ensure binary compatibility is to login into the Docker container and try to execute the command line:
+
+```bash
+/config/drivers/geckodriver --version
+```
+
+You should see something like :
+
+```bash
+geckodriver 0.27.0 (7b8c4f32cdde 2020-07-28 18:16 +0000)
+
+The source code of this program is available from
+testing/geckodriver in https://hg.mozilla.org/mozilla-central.
+
+This program is subject to the terms of the Mozilla Public License 2.0.
+You can obtain a copy of the license at https://mozilla.org/MPL/2.0/.
+```
+
+If you don't, two possible reasons :
+1. Execution permission of the file is wrongly set. Run the following command on it and retry :
+```bash
+chmod a+x /config/drivers/geckodriver
+```
+
+2. Binary format of the file is not compatible. Double check what kind of binary your need depending on your processor architecture.
+
+After geckodriver version has been found and validated, you have to install a compatible Firefox version in your Docker container. In my HA official container, there is two Firefox version available using APK package :
+
+```bash
+apk list | grep firefox
+```
+
+```bash
+firefox-esr-78.6.1-r0 x86_64 {firefox-esr} (GPL-3.0-only AND LGPL-2.1-only AND LGPL-3.0-only AND MPL-2.0)
+firefox-84.0.2-r0 x86_64 {firefox} (GPL-3.0-only AND LGPL-2.1-only AND LGPL-3.0-only AND MPL-2.0) [installed]
+```
+
+I tried both, but only firefox-84.0.2-r0 is working fine. The command line to install it is :
+
+```bash
+apk install firefox
+```
+
+Once geckodriver setup is fine and Firefox installed, HA Selenium based components should work fine.
 
 ## Note about using geckodriver in HassIO/RaspberryPi distribution
 
@@ -9,9 +115,9 @@ Some HassIO/RaspberryPi dirtribution are based on Alpine Linux with Architecture
 
 The corresponding geckodriver is not available from the official site (https://github.com/mozilla/geckodriver/releases) and I had to recompile a dedicated version available here (from source code available here : https://hg.mozilla.org/mozilla-central/file and instructions here : https://firefox-source-docs.mozilla.org/testing/geckodriver/Building.html): 
 
-```
+
 https://github.com/ssenart/ha-custom_components/blob/master/geckodriver-0.29.0-0-aarch64.tgz
-```
+
 
 This version is compatible with firefox-84.x.
 But, it is not compatible with firefox-esr-78.x.
@@ -19,7 +125,7 @@ But, it is not compatible with firefox-esr-78.x.
 You can install the corresponding firefox package with the command :
 
 ```bash
-# apk add firefox
+apk add firefox
 ```
 
 However, HassIO does not permit to add easily binary packages (apk) to their system.
