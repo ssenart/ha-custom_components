@@ -128,12 +128,12 @@ class GazparAccount:
                 GazparSensor(HA_LAST_ENERGY_KWH_BY_FREQUENCY[frequency], PropertyName.ENERGY_KWH.value, ENERGY_KILO_WATT_HOUR, LAST_INDEX, frequency, self))
 
         if hass is not None:
-            track_time_interval(hass, self.update_gazpar_data, hass)
+            track_time_interval(hass, self.update_gazpar_data, self._scan_interval)
         else:
             self.update_gazpar_data(None, liveData)
 
     # ----------------------------------
-    def update_gazpar_data(self, hass=None, liveData: bool = False):
+    def update_gazpar_data(self, event_time, liveData: bool = False):
         """Fetch new state data for the sensor."""
 
         _LOGGER.debug("Querying PyGazpar library for new data...")
@@ -148,7 +148,7 @@ class GazparAccount:
                 self._dataByFrequency[frequency] = client.data()
                 _LOGGER.debug(f"data[{frequency}]={json.dumps(self._dataByFrequency[frequency], indent=2)}")
 
-            if hass is not None:
+            if event_time is not None:
                 for sensor in self.sensors:
                     sensor.async_schedule_update_ha_state(True)
                     _LOGGER.debug("HA notified that new data is available")
