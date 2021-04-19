@@ -41,7 +41,7 @@ HA_ATTRIBUTION = "Data provided by GrDF"
 # HA_LAST_START_INDEX = "Gazpar last start index"
 # HA_LAST_END_INDEX = "Gazpar last end index"
 # HA_LAST_VOLUME_M3 = "Gazpar last volume"
-# HA_LAST_ENERGY_KWH = "Gazpar last energy"
+HA_LAST_ENERGY_KWH = "Gazpar last energy"
 # HA_LAST_CONVERTER_FACTOR = "Gazpar last converter factor"
 # HA_LAST_TEMPERATURE = "Gazpar last temperature"
 
@@ -105,6 +105,9 @@ class GazparAccount:
 
         if hass is not None:
             call_later(hass, 5, self.update_gazpar_data)
+
+        self.sensors.append(
+            GazparSensor(HA_LAST_ENERGY_KWH, PropertyName.ENERGY_KWH.value, ENERGY_KILO_WATT_HOUR, LAST_INDEX, Frequency.DAILY, self))
 
         for frequency in Frequency:
             self.sensors.append(
