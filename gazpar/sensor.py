@@ -119,7 +119,7 @@ class GazparAccount:
             self.update_gazpar_data(None, liveData)
 
     # ----------------------------------
-    def update_gazpar_data(self, event_time, liveData: bool = False):
+    def update_gazpar_data(self, event_time, liveData: bool = True):
         """Fetch new state data for the sensor."""
 
         _LOGGER.debug("Querying PyGazpar library for new data...")
