@@ -13,7 +13,7 @@ import voluptuous as vol
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
     ATTR_ATTRIBUTION, CONF_PASSWORD, CONF_USERNAME, CONF_SCAN_INTERVAL,
-    ENERGY_KILO_WATT_HOUR, TEMP_CELSIUS)
+    ENERGY_KILO_WATT_HOUR)
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import track_time_interval, call_later
@@ -27,23 +27,23 @@ DEFAULT_SCAN_INTERVAL = timedelta(hours=4)
 DEFAULT_WAITTIME = 30
 ICON_GAS = "mdi:fire"
 
-HA_VOLUME_M3 = "m³"
-HA_CONVERTOR_FACTOR_KWH_M3 = "kWh/m³"
+# HA_VOLUME_M3 = "m³"
+# HA_CONVERTOR_FACTOR_KWH_M3 = "kWh/m³"
 HA_ATTRIBUTION = "Data provided by GrDF"
-HA_TIME = "time"
-HA_TIMESTAMP = "timestamp"
-HA_TYPE = "type"
+# HA_TIME = "time"
+# HA_TIMESTAMP = "timestamp"
+# HA_TYPE = "type"
 
-GAZPAR_DATE_FORMAT = "%d/%m/%Y"
+# GAZPAR_DATE_FORMAT = "%d/%m/%Y"
 
-HA_LAST_PERIOD_START_TIME = "Gazpar last period start time"
-HA_LAST_PERIOD_END_TIME = "Gazpar last period end time"
-HA_LAST_START_INDEX = "Gazpar last start index"
-HA_LAST_END_INDEX = "Gazpar last end index"
-HA_LAST_VOLUME_M3 = "Gazpar last volume"
-HA_LAST_ENERGY_KWH = "Gazpar last energy"
-HA_LAST_CONVERTER_FACTOR = "Gazpar last converter factor"
-HA_LAST_TEMPERATURE = "Gazpar last temperature"
+# HA_LAST_PERIOD_START_TIME = "Gazpar last period start time"
+# HA_LAST_PERIOD_END_TIME = "Gazpar last period end time"
+# HA_LAST_START_INDEX = "Gazpar last start index"
+# HA_LAST_END_INDEX = "Gazpar last end index"
+# HA_LAST_VOLUME_M3 = "Gazpar last volume"
+# HA_LAST_ENERGY_KWH = "Gazpar last energy"
+# HA_LAST_CONVERTER_FACTOR = "Gazpar last converter factor"
+# HA_LAST_TEMPERATURE = "Gazpar last temperature"
 
 HA_LAST_ENERGY_KWH_BY_FREQUENCY = {
     Frequency.HOURLY: "Gazpar last hourly energy",
@@ -53,7 +53,7 @@ HA_LAST_ENERGY_KWH_BY_FREQUENCY = {
 }
 
 LAST_INDEX = -1
-BEFORE_LAST_INDEX = -2
+# BEFORE_LAST_INDEX = -2
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_USERNAME): cv.string,
@@ -105,23 +105,6 @@ class GazparAccount:
 
         if hass is not None:
             call_later(hass, 5, self.update_gazpar_data)
-
-        self.sensors.append(
-            GazparSensor(HA_LAST_PERIOD_START_TIME, PropertyName.DATE.value, None, BEFORE_LAST_INDEX, Frequency.DAILY, self))
-        self.sensors.append(
-            GazparSensor(HA_LAST_PERIOD_END_TIME, PropertyName.DATE.value, None, LAST_INDEX, Frequency.DAILY, self))
-        self.sensors.append(
-            GazparSensor(HA_LAST_START_INDEX, PropertyName.START_INDEX_M3.value, HA_VOLUME_M3, LAST_INDEX, Frequency.DAILY, self))
-        self.sensors.append(
-            GazparSensor(HA_LAST_END_INDEX, PropertyName.END_INDEX_M3.value, HA_VOLUME_M3, LAST_INDEX, Frequency.DAILY, self))
-        self.sensors.append(
-            GazparSensor(HA_LAST_VOLUME_M3, PropertyName.VOLUME_M3.value, HA_VOLUME_M3, LAST_INDEX, Frequency.DAILY, self))
-        self.sensors.append(
-            GazparSensor(HA_LAST_ENERGY_KWH, PropertyName.ENERGY_KWH.value, ENERGY_KILO_WATT_HOUR, LAST_INDEX, Frequency.DAILY, self))
-        self.sensors.append(
-            GazparSensor(HA_LAST_CONVERTER_FACTOR, PropertyName.CONVERTER_FACTOR.value, HA_CONVERTOR_FACTOR_KWH_M3, LAST_INDEX, Frequency.DAILY, self))
-        self.sensors.append(
-            GazparSensor(HA_LAST_TEMPERATURE, PropertyName.LOCAL_TEMPERATURE.value, TEMP_CELSIUS, LAST_INDEX, Frequency.DAILY, self))
 
         for frequency in Frequency:
             self.sensors.append(
