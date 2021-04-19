@@ -4,7 +4,7 @@ import json
 import logging
 import traceback
 
-from pygazpar.client import Client, DummyClient
+from pygazpar.client import Client
 from pygazpar.enum import PropertyName
 from pygazpar.enum import Frequency
 
@@ -66,7 +66,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 
 
 # --------------------------------------------------------------------------------------------
-def setup_platform(hass, config, add_entities, liveData: bool = True):
+def setup_platform(hass, config, add_entities, testMode: bool = False):
     """Configure the platform and add the Gazpar sensor."""
 
     _LOGGER.debug("Initializing Gazpar platform...")
@@ -79,7 +79,7 @@ def setup_platform(hass, config, add_entities, liveData: bool = True):
         tmpdir = config[CONF_TMPDIR]
         scan_interval = config[CONF_SCAN_INTERVAL]
 
-        account = GazparAccount(hass, username, password, webdriver, wait_time, tmpdir, scan_interval, liveData)
+        account = GazparAccount(hass, username, password, webdriver, wait_time, tmpdir, scan_interval, testMode)
         add_entities(account.sensors, True)
         _LOGGER.debug("Gazpar platform initialization has completed successfully")
     except BaseException:
@@ -92,7 +92,7 @@ class GazparAccount:
     """Representation of a Gazpar account."""
 
     # ----------------------------------
-    def __init__(self, hass, username, password, webdriver, wait_time, tmpdir, scan_interval, liveData: bool):
+    def __init__(self, hass, username: str, password: str, webdriver: str, wait_time: int, tmpdir: str, scan_interval: int, testMode: bool):
         """Initialise the Gazpar account."""
         self._username = username
         self._password = password
@@ -116,20 +116,17 @@ class GazparAccount:
         if hass is not None:
             track_time_interval(hass, self.update_gazpar_data, self._scan_interval)
         else:
-            self.update_gazpar_data(None, liveData)
+            self.update_gazpar_data(None, testMode)
 
     # ----------------------------------
-    def update_gazpar_data(self, event_time, liveData: bool = True):
+    def update_gazpar_data(self, event_time, testMode: bool = False):
         """Fetch new state data for the sensor."""
 
         _LOGGER.debug("Querying PyGazpar library for new data...")
 
         try:
             for frequency in Frequency:
-                if liveData:
-                    client = Client(self._username, self._password, self._webdriver, 30, self._tmpdir, 1, True, frequency)
-                else:
-                    client = DummyClient(1, frequency)
+                client = Client(self._username, self._password, self._webdriver, 30, self._tmpdir, 1, True, frequency, testMode)
                 client.update()
                 self._dataByFrequency[frequency] = client.data()
                 _LOGGER.debug(f"data[{frequency}]={json.dumps(self._dataByFrequency[frequency], indent=2)}")

@@ -30,12 +30,15 @@ class TestGazpar:
             CONF_SCAN_INTERVAL: 600
         }
 
-        setup_platform(None, config, self.add_entities, True)
+        setup_platform(None, config, self.add_entities)
 
         for entity in self._entities:
             entity.update()
+            attributes = entity.device_state_attributes
 
-    def test_dummy(self):
+            TestGazpar.logger.info(f"attributes={json.dumps(attributes, indent=2)}")
+
+    def test_sample(self):
 
         if os.name == 'nt':
             webdriver = "./drivers/geckodriver.exe"
@@ -51,7 +54,7 @@ class TestGazpar:
             CONF_SCAN_INTERVAL: 600
         }
 
-        setup_platform(None, config, self.add_entities, False)
+        setup_platform(None, config, self.add_entities, True)
 
         for entity in self._entities:
             entity.update()
