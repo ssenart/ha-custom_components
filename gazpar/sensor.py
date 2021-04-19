@@ -104,7 +104,7 @@ class GazparAccount:
         self.sensors = []
 
         if hass is not None:
-            call_later(hass, 5, self.update_gazpar_data, hass)
+            call_later(hass, 5, self.update_gazpar_data)
 
         self.sensors.append(
             GazparSensor(HA_LAST_PERIOD_START_TIME, PropertyName.DATE.value, None, BEFORE_LAST_INDEX, Frequency.DAILY, self))
@@ -133,7 +133,7 @@ class GazparAccount:
             self.update_gazpar_data(None, liveData)
 
     # ----------------------------------
-    def update_gazpar_data(self, hass, liveData: bool = False):
+    def update_gazpar_data(self, hass=None, liveData: bool = False):
         """Fetch new state data for the sensor."""
 
         _LOGGER.debug("Querying PyGazpar library for new data...")
