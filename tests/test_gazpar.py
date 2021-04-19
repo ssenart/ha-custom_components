@@ -5,15 +5,18 @@ import logging
 import json
 
 
+# --------------------------------------------------------------------------------------------
 class TestGazpar:
 
     logger = logging.getLogger(__name__)
 
     _entities = []
 
+    # ----------------------------------
     def add_entities(self, entities: list, flag: bool):
         self._entities.extend(entities)
 
+    # ----------------------------------
     def test_live(self):
 
         if os.name == 'nt':
@@ -38,6 +41,7 @@ class TestGazpar:
 
             TestGazpar.logger.info(f"attributes={json.dumps(attributes, indent=2)}")
 
+    # ----------------------------------
     def test_sample(self):
 
         if os.name == 'nt':
