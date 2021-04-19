@@ -116,7 +116,7 @@ Some HassIO/RaspberryPi dirtribution are based on Alpine Linux with Architecture
 The corresponding geckodriver is not available from the official site (https://github.com/mozilla/geckodriver/releases) and I had to recompile a dedicated version available here (from source code available here : https://hg.mozilla.org/mozilla-central/file and instructions here : https://firefox-source-docs.mozilla.org/testing/geckodriver/Building.html): 
 
 
-https://github.com/ssenart/ha-custom_components/blob/master/geckodriver-0.29.0-0-aarch64.tgz
+https://github.com/ssenart/ha-custom_components/blob/master/drivers/geckodriver-0.29.0-0-aarch64.tgz
 
 
 This version is compatible with firefox-84.x.
