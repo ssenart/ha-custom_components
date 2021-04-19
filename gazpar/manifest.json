@@ -4,7 +4,7 @@
   "version": "0.1.25",
   "issue_tracker": "https://github.com/ssenart/PyGazpar/issues",
   "requirements": [
-    "pygazpar==0.1.25"
+    "pygazpar==0.2.0.dev76"
   ],
   "dependencies": [],
   "codeowners": [
