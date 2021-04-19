@@ -1,9 +1,13 @@
 from gazpar.sensor import setup_platform
 from gazpar.sensor import CONF_USERNAME, CONF_PASSWORD, CONF_WEBDRIVER, CONF_WAITTIME, CONF_TMPDIR, CONF_SCAN_INTERVAL
 import os
+import logging
+import json
 
 
 class TestGazpar:
+
+    logger = logging.getLogger(__name__)
 
     _entities = []
 
@@ -51,3 +55,6 @@ class TestGazpar:
 
         for entity in self._entities:
             entity.update()
+            attributes = entity.device_state_attributes
+
+            TestGazpar.logger.info(f"attributes={json.dumps(attributes, indent=2)}")
