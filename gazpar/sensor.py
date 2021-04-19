@@ -195,7 +195,7 @@ class GazparSensor(Entity):
         self._account = account
         self._username = account.username
         self._meterReadingFrequency = meterReadingFrequency
-        self._data = None
+        self._data = {}
 
     # ----------------------------------
     @property
@@ -207,7 +207,7 @@ class GazparSensor(Entity):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self._data[self._identifier]
+        return self._data.get(self._identifier)
 
     @property
     def unit_of_measurement(self):
@@ -231,7 +231,9 @@ class GazparSensor(Entity):
         }
 
         for propertyName in PropertyName:
-            res[propertyName] = self._data[propertyName]
+            value = self._data.get(propertyName)
+            if value is not None:
+                res[propertyName] = value
 
         return res
 
