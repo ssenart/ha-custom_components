@@ -231,7 +231,7 @@ class GazparSensor(Entity):
         }
 
         for propertyName in PropertyName:
-            value = self._data.get(propertyName)
+            value = self._data.get(str(propertyName))
             if value is not None:
                 res[propertyName] = value
 
