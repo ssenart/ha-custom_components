@@ -27,6 +27,7 @@ DEFAULT_SCAN_INTERVAL = timedelta(hours=4)
 DEFAULT_WAITTIME = 30
 ICON_GAS = "mdi:fire"
 
+
 # HA_VOLUME_M3 = "m³"
 # HA_CONVERTOR_FACTOR_KWH_M3 = "kWh/m³"
 HA_ATTRIBUTION = "Data provided by GrDF"
@@ -103,17 +104,13 @@ class GazparAccount:
         self._dataByFrequency = {}
         self.sensors = []
 
+        for frequency in Frequency:
+            if frequency is not Frequency.HOURLY:  # Hourly not yet implemented.
+                self.sensors.append(
+                    GazparSensor(HA_LAST_ENERGY_KWH_BY_FREQUENCY[frequency], PropertyName.ENERGY.value, ENERGY_KILO_WATT_HOUR, LAST_INDEX, frequency, self))
+
         if hass is not None:
             call_later(hass, 5, self.update_gazpar_data)
-
-        self.sensors.append(
-            GazparSensor(HA_LAST_ENERGY_KWH, PropertyName.ENERGY_KWH.value, ENERGY_KILO_WATT_HOUR, LAST_INDEX, Frequency.DAILY, self))
-
-        for frequency in Frequency:
-            self.sensors.append(
-                GazparSensor(HA_LAST_ENERGY_KWH_BY_FREQUENCY[frequency], PropertyName.ENERGY_KWH.value, ENERGY_KILO_WATT_HOUR, LAST_INDEX, frequency, self))
-
-        if hass is not None:
             track_time_interval(hass, self.update_gazpar_data, self._scan_interval)
         else:
             self.update_gazpar_data(None, testMode)
@@ -126,18 +123,23 @@ class GazparAccount:
 
         try:
             for frequency in Frequency:
-                client = Client(self._username, self._password, self._webdriver, 30, self._tmpdir, 1, True, frequency, testMode)
-                client.update()
-                self._dataByFrequency[frequency] = client.data()
-                _LOGGER.debug(f"data[{frequency}]={json.dumps(self._dataByFrequency[frequency], indent=2)}")
+                if frequency is not Frequency.HOURLY:  # Hourly not yet implemented.
+                    client = Client(self._username, self._password, self._webdriver, 30, self._tmpdir, 1, True, frequency, testMode)
+                    client.update()
+                    self._dataByFrequency[frequency] = client.data()
 
-            if event_time is not None:
-                for sensor in self.sensors:
-                    sensor.async_schedule_update_ha_state(True)
-                    _LOGGER.debug("HA notified that new data is available")
-            _LOGGER.debug("New data have been retrieved successfully from PyGazpar library")
+                    _LOGGER.debug(f"data[{frequency}]={json.dumps(self._dataByFrequency[frequency], indent=2)}")
+
+                    if event_time is not None:
+                        for sensor in self.sensors:
+                            sensor.async_schedule_update_ha_state(True)
+                        _LOGGER.debug(f"HA notified that new {frequency} data are available")
+                    _LOGGER.debug(f"New {frequency} data have been retrieved successfully from PyGazpar library")
+
         except BaseException:
             _LOGGER.error("Failed to query PyGazpar library with exception : %s", traceback.format_exc())
+            if event_time is None:
+                raise
 
     # ----------------------------------
     @property
