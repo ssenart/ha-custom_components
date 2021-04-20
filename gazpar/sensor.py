@@ -23,8 +23,12 @@ _LOGGER = logging.getLogger(__name__)
 CONF_WEBDRIVER = "webdriver"
 CONF_WAITTIME = "wait_time"
 CONF_TMPDIR = "tmpdir"
+CONF_TESTMODE = "test_mode"
+
 DEFAULT_SCAN_INTERVAL = timedelta(hours=4)
 DEFAULT_WAITTIME = 30
+DEFAULT_TESTMODE = False
+
 ICON_GAS = "mdi:fire"
 
 
@@ -42,19 +46,19 @@ HA_ATTRIBUTION = "Data provided by GrDF"
 # HA_LAST_START_INDEX = "Gazpar last start index"
 # HA_LAST_END_INDEX = "Gazpar last end index"
 # HA_LAST_VOLUME_M3 = "Gazpar last volume"
-HA_LAST_ENERGY_KWH = "Gazpar last energy"
+# HA_LAST_ENERGY_KWH = "Gazpar last energy"
 # HA_LAST_CONVERTER_FACTOR = "Gazpar last converter factor"
 # HA_LAST_TEMPERATURE = "Gazpar last temperature"
 
 HA_LAST_ENERGY_KWH_BY_FREQUENCY = {
-    Frequency.HOURLY: "Gazpar last hourly energy",
-    Frequency.DAILY: "Gazpar last daily energy",
-    Frequency.WEEKLY: "Gazpar last weekly energy",
-    Frequency.MONTHLY: "Gazpar last monthly energy"
+    Frequency.HOURLY: "Gazpar hourly energy",
+    Frequency.DAILY: "Gazpar daily energy",
+    Frequency.WEEKLY: "Gazpar weekly energy",
+    Frequency.MONTHLY: "Gazpar monthly energy"
 }
 
 LAST_INDEX = -1
-# BEFORE_LAST_INDEX = -2
+BEFORE_LAST_INDEX = -2
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_USERNAME): cv.string,
@@ -62,6 +66,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_WEBDRIVER): cv.string,
     vol.Optional(CONF_WAITTIME, default=DEFAULT_WAITTIME): int,
     vol.Required(CONF_TMPDIR): cv.string,
+    vol.Optional(CONF_TESTMODE, default=DEFAULT_TESTMODE): bool,
     vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.time_period
 })
 
@@ -74,11 +79,26 @@ def setup_platform(hass, config, add_entities, testMode: bool = False):
 
     try:
         username = config[CONF_USERNAME]
+        _LOGGER.debug(f"username={username}")
+
         password = config[CONF_PASSWORD]
+        _LOGGER.debug("password=*********")
+
         webdriver = config[CONF_WEBDRIVER]
+        _LOGGER.debug(f"webdriver={webdriver}")
+
         wait_time = config[CONF_WAITTIME]
+        _LOGGER.debug(f"wait_time={wait_time}")
+
         tmpdir = config[CONF_TMPDIR]
+        _LOGGER.debug(f"tmpdir={tmpdir}")
+
+        if not testMode:
+            testMode = config[CONF_TESTMODE]
+        _LOGGER.debug(f"testMode={testMode}")
+
         scan_interval = config[CONF_SCAN_INTERVAL]
+        _LOGGER.debug(f"scan_interval={scan_interval}")
 
         account = GazparAccount(hass, username, password, webdriver, wait_time, tmpdir, scan_interval, testMode)
         add_entities(account.sensors, True)
@@ -101,22 +121,30 @@ class GazparAccount:
         self._wait_time = wait_time
         self._tmpdir = tmpdir
         self._scan_interval = scan_interval
+        self._testMode = testMode
         self._dataByFrequency = {}
         self.sensors = []
+
+        lastIndexByFrequence = {
+            Frequency.HOURLY: LAST_INDEX,
+            Frequency.DAILY: LAST_INDEX,
+            Frequency.WEEKLY: BEFORE_LAST_INDEX,
+            Frequency.MONTHLY: BEFORE_LAST_INDEX,
+        }
 
         for frequency in Frequency:
             if frequency is not Frequency.HOURLY:  # Hourly not yet implemented.
                 self.sensors.append(
-                    GazparSensor(HA_LAST_ENERGY_KWH_BY_FREQUENCY[frequency], PropertyName.ENERGY.value, ENERGY_KILO_WATT_HOUR, LAST_INDEX, frequency, self))
+                    GazparSensor(HA_LAST_ENERGY_KWH_BY_FREQUENCY[frequency], PropertyName.ENERGY.value, ENERGY_KILO_WATT_HOUR, lastIndexByFrequence[frequency], frequency, self))
 
         if hass is not None:
             call_later(hass, 5, self.update_gazpar_data)
             track_time_interval(hass, self.update_gazpar_data, self._scan_interval)
         else:
-            self.update_gazpar_data(None, testMode)
+            self.update_gazpar_data(None)
 
     # ----------------------------------
-    def update_gazpar_data(self, event_time, testMode: bool = False):
+    def update_gazpar_data(self, event_time):
         """Fetch new state data for the sensor."""
 
         _LOGGER.debug("Querying PyGazpar library for new data...")
@@ -124,7 +152,7 @@ class GazparAccount:
         try:
             for frequency in Frequency:
                 if frequency is not Frequency.HOURLY:  # Hourly not yet implemented.
-                    client = Client(self._username, self._password, self._webdriver, 30, self._tmpdir, 1, True, frequency, testMode)
+                    client = Client(self._username, self._password, self._webdriver, 30, self._tmpdir, 2, True, frequency, self._testMode)
                     client.update()
                     self._dataByFrequency[frequency] = client.data()
 
@@ -192,7 +220,10 @@ class GazparSensor(Entity):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self._data.get(self._identifier)
+        if len(self._data) > 0:
+            return self._data[-1].get(self._identifier)
+        else:
+            return None
 
     @property
     def unit_of_measurement(self):
@@ -215,10 +246,14 @@ class GazparSensor(Entity):
             CONF_USERNAME: self._username
         }
 
-        for propertyName in PropertyName:
-            value = self._data.get(propertyName.value)
-            if value is not None:
-                res[propertyName.value] = value
+        if len(self._data) > 1:  # Cases WEEKLY and MONTHLY.
+            res["current"] = self._data[LAST_INDEX]
+            res["previous"] = self._data[BEFORE_LAST_INDEX]
+        elif len(self._data) == 1:  # Cases DAILY.
+            for propertyName in PropertyName:
+                value = self._data[LAST_INDEX].get(propertyName.value)
+                if value is not None:
+                    res[propertyName.value] = value
 
         return res
 
@@ -231,7 +266,7 @@ class GazparSensor(Entity):
             data = self._account.dataByFrequency.get(self._meterReadingFrequency)
 
             if data is not None and len(data) > 0:
-                self._data = data[self._index]
+                self._data = data[self._index:]
                 _LOGGER.debug(f"HA {self._meterReadingFrequency} data have been updated successfully")
             else:
                 _LOGGER.debug(f"No {self._meterReadingFrequency} data available yet for update")
