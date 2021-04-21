@@ -1,10 +1,10 @@
 {
   "domain": "gazpar",
   "name": "Gazpar",
-  "version": "0.2.0.dev",
-  "issue_tracker": "https://github.com/ssenart/PyGazpar/issues",
+  "version": "0.2.0",
+  "issue_tracker": "https://github.com/ssenart/ha-custom_components/issues",
   "requirements": [
-    "pygazpar==0.2.0.dev82"
+    "pygazpar==0.2.0"
   ],
   "dependencies": [],
   "codeowners": [
