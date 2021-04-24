@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 import datetime
-import traceback
 
 # see https://data.home-assistant.io/docs/states
 # see https://data.home-assistant.io/docs/events
