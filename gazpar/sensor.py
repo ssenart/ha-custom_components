@@ -8,12 +8,12 @@ from pygazpar.client import Client
 from pygazpar.enum import PropertyName
 from pygazpar.enum import Frequency
 
+from gazpar.util import Util
+
 import voluptuous as vol
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.const import (
-    ATTR_ATTRIBUTION, CONF_PASSWORD, CONF_USERNAME, CONF_SCAN_INTERVAL,
-    ENERGY_KILO_WATT_HOUR)
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, CONF_SCAN_INTERVAL, ENERGY_KILO_WATT_HOUR
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import track_time_interval, call_later
@@ -30,25 +30,6 @@ DEFAULT_WAITTIME = 30
 DEFAULT_TESTMODE = False
 
 ICON_GAS = "mdi:fire"
-
-
-# HA_VOLUME_M3 = "m³"
-# HA_CONVERTOR_FACTOR_KWH_M3 = "kWh/m³"
-HA_ATTRIBUTION = "Data provided by GrDF"
-# HA_TIME = "time"
-# HA_TIMESTAMP = "timestamp"
-# HA_TYPE = "type"
-
-# GAZPAR_DATE_FORMAT = "%d/%m/%Y"
-
-# HA_LAST_PERIOD_START_TIME = "Gazpar last period start time"
-# HA_LAST_PERIOD_END_TIME = "Gazpar last period end time"
-# HA_LAST_START_INDEX = "Gazpar last start index"
-# HA_LAST_END_INDEX = "Gazpar last end index"
-# HA_LAST_VOLUME_M3 = "Gazpar last volume"
-# HA_LAST_ENERGY_KWH = "Gazpar last energy"
-# HA_LAST_CONVERTER_FACTOR = "Gazpar last converter factor"
-# HA_LAST_TEMPERATURE = "Gazpar last temperature"
 
 HA_LAST_ENERGY_KWH_BY_FREQUENCY = {
     Frequency.HOURLY: "Gazpar hourly energy",
@@ -72,7 +53,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 
 
 # --------------------------------------------------------------------------------------------
-def setup_platform(hass, config, add_entities, testMode: bool = False):
+def setup_platform(hass, config, add_entities):
     """Configure the platform and add the Gazpar sensor."""
 
     _LOGGER.debug("Initializing Gazpar platform...")
@@ -93,8 +74,7 @@ def setup_platform(hass, config, add_entities, testMode: bool = False):
         tmpdir = config[CONF_TMPDIR]
         _LOGGER.debug(f"tmpdir={tmpdir}")
 
-        if not testMode:
-            testMode = config[CONF_TESTMODE]
+        testMode = config[CONF_TESTMODE]
         _LOGGER.debug(f"testMode={testMode}")
 
         scan_interval = config[CONF_SCAN_INTERVAL]
@@ -152,7 +132,7 @@ class GazparAccount:
         try:
             for frequency in Frequency:
                 if frequency is not Frequency.HOURLY:  # Hourly not yet implemented.
-                    client = Client(self._username, self._password, self._webdriver, 30, self._tmpdir, 2, True, frequency, self._testMode)
+                    client = Client(self._username, self._password, self._webdriver, self._wait_time, self._tmpdir, 2, True, frequency, self._testMode)
                     client.update()
                     self._dataByFrequency[frequency] = client.data()
 
@@ -220,10 +200,8 @@ class GazparSensor(Entity):
     @property
     def state(self):
         """Return the state of the sensor."""
-        if len(self._data) > 0:
-            return self._data[-1].get(self._identifier)
-        else:
-            return None
+
+        return Util.toState(self._data)
 
     @property
     def unit_of_measurement(self):
@@ -241,21 +219,7 @@ class GazparSensor(Entity):
     def device_state_attributes(self):
         """Return the state attributes of the sensor."""
 
-        res = {
-            ATTR_ATTRIBUTION: HA_ATTRIBUTION,
-            CONF_USERNAME: self._username
-        }
-
-        if len(self._data) > 1:  # Cases WEEKLY and MONTHLY.
-            res["current"] = self._data[LAST_INDEX]
-            res["previous"] = self._data[BEFORE_LAST_INDEX]
-        elif len(self._data) == 1:  # Cases DAILY.
-            for propertyName in PropertyName:
-                value = self._data[LAST_INDEX].get(propertyName.value)
-                if value is not None:
-                    res[propertyName.value] = value
-
-        return res
+        return Util.toAttributes(self._username, self._meterReadingFrequency, self._data)
 
     # ----------------------------------
     def update(self):

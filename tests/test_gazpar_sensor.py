@@ -1,4 +1,4 @@
-from gazpar.sensor import setup_platform
+from gazpar.sensor import CONF_TESTMODE, setup_platform
 from gazpar.sensor import CONF_USERNAME, CONF_PASSWORD, CONF_WEBDRIVER, CONF_WAITTIME, CONF_TMPDIR, CONF_SCAN_INTERVAL
 import os
 import logging
@@ -6,7 +6,7 @@ import json
 
 
 # --------------------------------------------------------------------------------------------
-class TestGazpar:
+class TestGazparSensor:
 
     logger = logging.getLogger(__name__)
 
@@ -30,7 +30,8 @@ class TestGazpar:
             CONF_WEBDRIVER: webdriver,
             CONF_WAITTIME: 30,
             CONF_TMPDIR: "./tmp",
-            CONF_SCAN_INTERVAL: 600
+            CONF_SCAN_INTERVAL: 600,
+            CONF_TESTMODE: False
         }
 
         setup_platform(None, config, self.add_entities)
@@ -39,7 +40,7 @@ class TestGazpar:
             entity.update()
             attributes = entity.device_state_attributes
 
-            TestGazpar.logger.info(f"attributes={json.dumps(attributes, indent=2)}")
+            TestGazparSensor.logger.info(f"attributes={json.dumps(attributes, indent=2)}")
 
     # ----------------------------------
     def test_sample(self):
@@ -55,13 +56,14 @@ class TestGazpar:
             CONF_WEBDRIVER: webdriver,
             CONF_WAITTIME: 30,
             CONF_TMPDIR: "./tmp",
-            CONF_SCAN_INTERVAL: 600
+            CONF_SCAN_INTERVAL: 600,
+            CONF_TESTMODE: True
         }
 
-        setup_platform(None, config, self.add_entities, True)
+        setup_platform(None, config, self.add_entities)
 
         for entity in self._entities:
             entity.update()
             attributes = entity.device_state_attributes
 
-            TestGazpar.logger.info(f"attributes={json.dumps(attributes, indent=2)}")
+            TestGazparSensor.logger.info(f"attributes={json.dumps(attributes, indent=2)}")
