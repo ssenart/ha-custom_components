@@ -8,7 +8,7 @@ from pygazpar.client import Client
 from pygazpar.enum import PropertyName
 from pygazpar.enum import Frequency
 
-from gazpar.util import Util
+from .util import Util
 
 import voluptuous as vol
 
@@ -53,7 +53,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 
 
 # --------------------------------------------------------------------------------------------
-def setup_platform(hass, config, add_entities):
+def setup_platform(hass, config, add_entities, discovery_info=None):
     """Configure the platform and add the Gazpar sensor."""
 
     _LOGGER.debug("Initializing Gazpar platform...")
