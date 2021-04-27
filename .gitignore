@@ -130,3 +130,6 @@ dmypy.json
 
 hacs/
 *.db-journal
+
+# Visual Studio Code
+.vscode/

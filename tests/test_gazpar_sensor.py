@@ -38,8 +38,10 @@ class TestGazparSensor:
 
         for entity in self._entities:
             entity.update()
+            state = entity.state
             attributes = entity.device_state_attributes
 
+            TestGazparSensor.logger.info(f"state={state}")
             TestGazparSensor.logger.info(f"attributes={json.dumps(attributes, indent=2)}")
 
     # ----------------------------------
@@ -64,6 +66,8 @@ class TestGazparSensor:
 
         for entity in self._entities:
             entity.update()
+            state = entity.state
             attributes = entity.device_state_attributes
 
+            TestGazparSensor.logger.info(f"state={state}")
             TestGazparSensor.logger.info(f"attributes={json.dumps(attributes, indent=2)}")

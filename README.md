@@ -130,6 +130,20 @@ icon: mdi:fire
       icon_template: mdi:fire      
 ```
 
+## Data history import into HA database
+
+The command line to import the daily data history into HA is :
+
+```bash
+$ python -m gazpar -u 'your login' -p 'your password' -w 'path/to/Selenium Web Driver' -s 30 -t 'temporary directory where to store XSLX file (ex: /tmp)' -f DAILY -l 0 import --connectionType Sql --connectionString 'ha_db_url'
+```
+
+Replace DAILY by WEEKLY or MONTHLY depending on the readings you want.
+
+HA database connection string format is:
+- Sqlite : sqlite:///path_to/ha_filename.db
+- Mariadb : mariadb+mariadbconnector://user:password@ip:3306/ha_database_name?charset=utf8mb4
+
 ## Troubleshooting
 
 1. If the Gazpar entities does not show up few minutes after restart, something goes wrong.
