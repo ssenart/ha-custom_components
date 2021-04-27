@@ -5,6 +5,7 @@ import os
 import logging
 import gazpar
 import pygazpar
+import uuid
 
 from gazpar.entity_recorder import PyGazparOptions
 from gazpar.entity_recorder import EntityRecorder
@@ -109,7 +110,9 @@ def main():
     pyGazparOptions.headlessMode = not bool(args.headfull)
     pyGazparOptions.testMode = bool(args.testMode)
 
-    entityRecorder = EntityRecorder("unit test context", pyGazparOptions, args.connectionString)
+    context_id = uuid.uuid1().hex
+
+    entityRecorder = EntityRecorder(context_id, pyGazparOptions, args.connectionString)
 
     try:
         entity = entityRecorder.load(args.frequency, int(args.lastNRows))

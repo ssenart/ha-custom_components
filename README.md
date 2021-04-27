@@ -21,9 +21,11 @@ sensor:
     username: ***
     password: ***
     webdriver: /config/drivers/geckodriver
-    tmpdir: /tmp
+    tmpdir: /config/tmp
     scan_interval: 01:00:00
 ```
+
+Ensure that tmpdir already exists before starting HA.
 
 5. Restart your HA application. In HA development panel, you should see the new Gazpar entities with their corresponding attributes:
 - sensor.gazpar_daily_energy:
