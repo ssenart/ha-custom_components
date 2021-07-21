@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2021-07-21
 
+### Changed
+- Upgrade Netatmo component as available in Home Assistant version 2021.7.3.
+- [PresenceCamera] Permit to stream images even if cameras are off.
+
 ### Fixed
 - Fix 'gazpar module not found' error after upgrading HA version to latest.
 
