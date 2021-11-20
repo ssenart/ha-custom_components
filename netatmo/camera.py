@@ -170,22 +170,26 @@ class NetatmoCamera(NetatmoBase, Camera):
         if not data.get("camera_id"):
             return
 
+        _LOGGER.info("handle_event: %s", data)
+
         if data["home_id"] == self._home_id and data["camera_id"] == self._id:
-            if data[WEBHOOK_PUSH_TYPE] in ("NACamera-off", "NACamera-disconnection"):
+            if data[WEBHOOK_PUSH_TYPE] in ["NOC-disconnection", "NACamera-disconnection"]:
                 self.is_streaming = False
-                self._status = "off"
-            elif data[WEBHOOK_PUSH_TYPE] in (
-                "NACamera-on",
-                WEBHOOK_NACAMERA_CONNECTION,
-            ):
+                self._alim_status = "off"
+            elif data[WEBHOOK_PUSH_TYPE] in ["NOC-connection", "NACamera-connection"]:
+                self.is_streaming = True
+                self._alim_status = "on"
+            elif data[WEBHOOK_PUSH_TYPE] in ["NOC-on", "NACamera-on"]:
                 self.is_streaming = True
                 self._status = "on"
+            elif data[WEBHOOK_PUSH_TYPE] in ["NOC-off", "NACamera-off"]:
+                self.is_streaming = False
+                self._status = "off"
             elif data[WEBHOOK_PUSH_TYPE] == WEBHOOK_LIGHT_MODE:
                 self._light_state = data["sub_type"]
                 self._attr_extra_state_attributes.update(
                     {"light_state": self._light_state}
                 )
-
             self.async_write_ha_state()
             return
 

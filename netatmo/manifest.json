@@ -1,6 +1,7 @@
 {
   "domain": "netatmo",
   "name": "Netatmo",
+  "version": "2021.11.5",
   "documentation": "https://www.home-assistant.io/integrations/netatmo",
   "requirements": [
     "pyatmo==6.1.0"
