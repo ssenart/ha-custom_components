@@ -52,6 +52,11 @@ def main():
                         choices=list(pygazpar.Frequency),
                         default="DAILY",
                         help="Meter reading frequency (DAILY, WEEKLY, MONTHLY)")
+    parser.add_argument("-d", "--lastNDays",
+                        required=False,
+                        type=int,
+                        default=365,
+                        help="Get only the last N days of records (default: 365 days)")                        
     parser.add_argument("--testMode",
                         required=False,
                         action='store_true',
@@ -99,6 +104,7 @@ def main():
     logging.info(f"--lastNRows {int(args.lastNRows)}")
     logging.info(f"--headfull {bool(args.headfull)}")
     logging.info(f"--frequency {args.frequency}")
+    logging.info(f"--lastNDays {args.lastNDays}")
     logging.info(f"--testMode {bool(args.testMode)}")
 
     pyGazparOptions = PyGazparOptions()

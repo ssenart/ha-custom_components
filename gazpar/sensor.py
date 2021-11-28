@@ -132,7 +132,7 @@ class GazparAccount:
         try:
             for frequency in Frequency:
                 if frequency is not Frequency.HOURLY:  # Hourly not yet implemented.
-                    client = Client(self._username, self._password, self._webdriver, self._wait_time, self._tmpdir, 2, True, frequency, self._testMode)
+                    client = Client(self._username, self._password, self._webdriver, self._wait_time, self._tmpdir, 2, True, frequency, 365, self._testMode)
                     client.update()
                     self._dataByFrequency[frequency] = client.data()
 

@@ -32,9 +32,9 @@ class EntityRecorder:
         self.__databaseConnectionString = databaseConnectionString
 
     # ----------------------------------
-    def load(self, meterReadingFrequency: Frequency, lastNRows: int) -> Entity:
+    def load(self, meterReadingFrequency: Frequency, lastNRows: int, lastNDays: int) -> Entity:
 
-        client = Client(self.__pygazparOptions.username, self.__pygazparOptions.password, self.__pygazparOptions.webdriver, self.__pygazparOptions.wait_time, self.__pygazparOptions.tmpdir, lastNRows, self.__pygazparOptions.headlessMode, meterReadingFrequency, self.__pygazparOptions.testMode)
+        client = Client(self.__pygazparOptions.username, self.__pygazparOptions.password, self.__pygazparOptions.webdriver, self.__pygazparOptions.wait_time, self.__pygazparOptions.tmpdir, lastNRows, self.__pygazparOptions.headlessMode, meterReadingFrequency, lastNDays, self.__pygazparOptions.testMode)
         client.update()
 
         history = client.data()
