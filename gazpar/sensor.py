@@ -20,7 +20,7 @@ from homeassistant.helpers.event import track_time_interval, call_later
 
 _LOGGER = logging.getLogger(__name__)
 
-CONF_WEBDRIVER = "webdriver"
+CONF_PCE_IDENTIFIER = "pce_identifier"
 CONF_WAITTIME = "wait_time"
 CONF_TMPDIR = "tmpdir"
 CONF_TESTMODE = "test_mode"
@@ -44,7 +44,7 @@ BEFORE_LAST_INDEX = -2
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_USERNAME): cv.string,
     vol.Required(CONF_PASSWORD): cv.string,
-    vol.Required(CONF_WEBDRIVER): cv.string,
+    vol.Required(CONF_PCE_IDENTIFIER): cv.string,
     vol.Optional(CONF_WAITTIME, default=DEFAULT_WAITTIME): int,
     vol.Required(CONF_TMPDIR): cv.string,
     vol.Optional(CONF_TESTMODE, default=DEFAULT_TESTMODE): bool,
@@ -65,8 +65,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         password = config[CONF_PASSWORD]
         _LOGGER.debug("password=*********")
 
-        webdriver = config[CONF_WEBDRIVER]
-        _LOGGER.debug(f"webdriver={webdriver}")
+        pceIdentifier = config[CONF_PCE_IDENTIFIER]
+        _LOGGER.debug("pce_identifier={pceIdentifier}")
 
         wait_time = config[CONF_WAITTIME]
         _LOGGER.debug(f"wait_time={wait_time}")
@@ -80,7 +80,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         scan_interval = config[CONF_SCAN_INTERVAL]
         _LOGGER.debug(f"scan_interval={scan_interval}")
 
-        account = GazparAccount(hass, username, password, webdriver, wait_time, tmpdir, scan_interval, testMode)
+        account = GazparAccount(hass, username, password, pceIdentifier, wait_time, tmpdir, scan_interval, testMode)
         add_entities(account.sensors, True)
         _LOGGER.debug("Gazpar platform initialization has completed successfully")
     except BaseException:
@@ -93,11 +93,11 @@ class GazparAccount:
     """Representation of a Gazpar account."""
 
     # ----------------------------------
-    def __init__(self, hass, username: str, password: str, webdriver: str, wait_time: int, tmpdir: str, scan_interval: int, testMode: bool):
+    def __init__(self, hass, username: str, password: str, pceIdentifier: str, wait_time: int, tmpdir: str, scan_interval: int, testMode: bool):
         """Initialise the Gazpar account."""
         self._username = username
         self._password = password
-        self._webdriver = webdriver
+        self._pceIdentifier = pceIdentifier
         self._wait_time = wait_time
         self._tmpdir = tmpdir
         self._scan_interval = scan_interval
@@ -132,7 +132,13 @@ class GazparAccount:
         try:
             for frequency in Frequency:
                 if frequency is not Frequency.HOURLY:  # Hourly not yet implemented.
-                    client = Client(self._username, self._password, self._webdriver, self._wait_time, self._tmpdir, 2, True, frequency, self._testMode)
+                    client = Client(username=self._username,
+                                    password=self._password,
+                                    pceIdentifier=self._pceIdentifier,
+                                    meterReadingFrequency=frequency,
+                                    lastNDays=30,
+                                    tmpDirectory=self._tmpdir,
+                                    testMode=self._testMode)
                     client.update()
                     self._dataByFrequency[frequency] = client.data()
 
@@ -157,9 +163,9 @@ class GazparAccount:
 
     # ----------------------------------
     @property
-    def webdriver(self):
-        """Return the webdriver."""
-        return self._webdriver
+    def pceIdentifier(self):
+        """Return the PCE identifier."""
+        return self._pceIdentifier
 
     # ----------------------------------
     @property

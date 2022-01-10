@@ -3,24 +3,19 @@ Some custom components for HA (Home Assistant).
 
 # Gazpar
 Gazpar custom component is using PyGazpar library to retrieve GrDF data.
-PyGazpar library relies on Selenium and geckodriver application (see https://github.com/ssenart/PyGazpar for details).
 
 ## Installation steps of gazpar are :
 
 1. Copy the gazpar directory in HA config/custom_components directory.
 
-2. Copy your Selenium geckodriver binary in HA config/drivers directory. Ensure it has the execution permission from the runtime environment HA is running on. Geckodriver releases are available here : https://github.com/mozilla/geckodriver/releases.
-
-3. Install a compatible version Firefox on HA host. Ensure this version is in the PATH and HA can run it.
-
-4. Update your HA configuration with :
+2. Update your HA configuration with :
 
 ```yaml
 sensor:
 - platform: gazpar
     username: ***
     password: ***
-    webdriver: /config/drivers/geckodriver
+    pce_identifier: ***
     tmpdir: /config/tmp
     scan_interval: 01:00:00
 ```
