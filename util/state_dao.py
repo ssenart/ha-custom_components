@@ -1,4 +1,4 @@
-from gazpar.state import State
+from util.state import State
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import text
 

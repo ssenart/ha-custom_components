@@ -3,12 +3,12 @@ import sys
 import traceback
 import os
 import logging
-import gazpar
+import util
 import pygazpar
 import uuid
 
-from gazpar.entity_recorder import PyGazparOptions
-from gazpar.entity_recorder import EntityRecorder
+from util.entity_recorder import PyGazparOptions
+from util.entity_recorder import EntityRecorder
 
 
 # --------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--version",
                         action="version",
-                        version=f"gazpar {gazpar.__version__}")
+                        version=f"gazpar {util.__version__}")
     parser.add_argument("-u", "--username",
                         required=True,
                         help="GRDF username (email)")
@@ -56,7 +56,7 @@ def main():
                         required=False,
                         type=int,
                         default=365,
-                        help="Get only the last N days of records (default: 365 days)")                        
+                        help="Get only the last N days of records (default: 365 days)")
     parser.add_argument("--testMode",
                         required=False,
                         action='store_true',
@@ -97,7 +97,7 @@ def main():
     # Setup logging.
     logging.basicConfig(filename=f"{gazparLogFile}", level=logging.DEBUG, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
 
-    logging.info(f"gazpar {gazpar.__version__}")
+    logging.info(f"gazpar {util.__version__}")
     logging.info(f"--webdriver {args.webdriver}")
     logging.info(f"--wait_time {int(args.wait_time)}")
     logging.info(f"--tmpdir {args.tmpdir}")

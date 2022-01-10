@@ -1,5 +1,5 @@
-from gazpar.state import State
-from gazpar.event import Event
+from util.state import State
+from util.event import Event
 from datetime import datetime
 
 

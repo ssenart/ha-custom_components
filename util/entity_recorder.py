@@ -1,10 +1,10 @@
 from pygazpar.client import Client
 from pygazpar.enum import PropertyName
 from pygazpar.enum import Frequency
-from gazpar.time_period import TimePeriod
-from gazpar.entity import Entity
-from gazpar.entity_dao import EntityDAO
-from gazpar.util import Util
+from util.time_period import TimePeriod
+from util.entity import Entity
+from util.entity_dao import EntityDAO
+from util.util import Util
 import json
 
 

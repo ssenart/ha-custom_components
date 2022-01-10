@@ -111,7 +111,6 @@ class TestEntityRecorder:
         pygazparOptions.username = "stephane.senart@gmail.com"
         pygazparOptions.password = "IfkDMMmrvrH27HjVovKh"
 
-
         entityRecorder = EntityRecorder("unit test context", pygazparOptions, TestEntityRecorder.CONNECTION_STRING)
 
         entity = entityRecorder.load(Frequency.DAILY, 0, 1095)

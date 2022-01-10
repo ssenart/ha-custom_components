@@ -1,4 +1,4 @@
-from gazpar.event import Event
+from util.event import Event
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql import text
 

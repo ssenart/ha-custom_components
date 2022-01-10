@@ -1,6 +1,6 @@
-from gazpar.entity import Entity
-from gazpar.event_dao import EventDAO
-from gazpar.state_dao import StateDAO
+from util.entity import Entity
+from util.event_dao import EventDAO
+from util.state_dao import StateDAO
 from sqlalchemy import create_engine
 import logging
 
