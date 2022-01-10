@@ -6,7 +6,6 @@ from pygazpar.enum import Frequency
 class TestEntityRecorder:
 
     CONNECTION_STRING = "sqlite:///tests/resources/homeassistant.db"
-    # CONNECTION_STRING = "mariadb+mariadbconnector://homeassistant:*******@192.168.1.210:3306/home_assistant?charset=utf8mb4"
 
     # ----------------------------------
     def test_load_hourly(self):
@@ -103,3 +102,18 @@ class TestEntityRecorder:
         entity = entityRecorder.load(Frequency.MONTHLY, 0)
 
         entityRecorder.save(entity)
+
+    # ----------------------------------
+    def test_save_statistics(self):
+
+        pygazparOptions = PyGazparOptions()
+        # pygazparOptions.testMode = True
+        pygazparOptions.username = "stephane.senart@gmail.com"
+        pygazparOptions.password = "IfkDMMmrvrH27HjVovKh"
+
+
+        entityRecorder = EntityRecorder("unit test context", pygazparOptions, TestEntityRecorder.CONNECTION_STRING)
+
+        entity = entityRecorder.load(Frequency.DAILY, 0, 1095)
+
+        entityRecorder.saveAsStatistics(entity)

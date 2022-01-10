@@ -15,10 +15,10 @@ class PyGazparOptions:
     def __init__(self):
         self.username = ""
         self.password = ""
-        self.webdriver = "./geckodriver"
+        self.webdriver = "./drivers/geckodriver.exe"
         self.headlessMode = True
         self.wait_time = 20
-        self.tmpdir = "/tmp"
+        self.tmpdir = "./tmp"
         self.testMode = False
 
 
@@ -32,9 +32,9 @@ class EntityRecorder:
         self.__databaseConnectionString = databaseConnectionString
 
     # ----------------------------------
-    def load(self, meterReadingFrequency: Frequency, lastNRows: int) -> Entity:
+    def load(self, meterReadingFrequency: Frequency, lastNRows: int, lastNDays: int) -> Entity:
 
-        client = Client(self.__pygazparOptions.username, self.__pygazparOptions.password, self.__pygazparOptions.webdriver, self.__pygazparOptions.wait_time, self.__pygazparOptions.tmpdir, lastNRows, self.__pygazparOptions.headlessMode, meterReadingFrequency, self.__pygazparOptions.testMode)
+        client = Client(self.__pygazparOptions.username, self.__pygazparOptions.password, self.__pygazparOptions.webdriver, self.__pygazparOptions.wait_time, self.__pygazparOptions.tmpdir, lastNRows, self.__pygazparOptions.headlessMode, meterReadingFrequency, lastNDays, self.__pygazparOptions.testMode)
         client.update()
 
         history = client.data()
@@ -70,3 +70,30 @@ class EntityRecorder:
             entityDAO = EntityDAO(self.__databaseConnectionString)
 
             entityDAO.save(entity)
+
+    # ----------------------------------
+    def saveAsStatistics(self, entity: Entity) -> None:
+
+        if entity is not None:
+
+            statisticEntity = Entity("sensor", "sensor.gas_test")
+
+            for (event, state) in entity.history():
+
+                attributes = {}
+                attributes["unit_of_measurement"] = "m³"
+                attributes["icon"] = "mdi:fire"
+                attributes["state_class"] = "total_increasing"
+                attributes["device_class"] = "gas"
+                attributes["friendly_name"] = "Natural gas"
+
+                attr = json.loads(state.attributes)
+
+                state_value = attr.get("end_index_m3")
+
+                if (state_value is not None):
+                    statisticEntity.addRecord(self.__context_id, state.last_changed, str(state_value), json.dumps(attributes))
+
+            entityDAO = EntityDAO(self.__databaseConnectionString)
+
+            entityDAO.save(statisticEntity)

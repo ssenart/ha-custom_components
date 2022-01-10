@@ -14,7 +14,7 @@ class Entity:
         self.__event_state_history = []
 
     # ----------------------------------
-    def addRecord(self, context_id: str, record_time: datetime, value: str, attributes: dict) -> State:
+    def addRecord(self, context_id: str, record_time: datetime, value: str, attributes: str) -> State:
 
         state = State()
 
@@ -57,7 +57,7 @@ class Entity:
             return None
 
     # ----------------------------------
-    def attributes(self) -> dict:
+    def attributes(self) -> str:
 
         if len(self.__event_state_history) > 0:
             return self.__event_state_history[-1][1].attributes
