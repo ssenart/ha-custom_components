@@ -2,7 +2,7 @@
 Some custom components for HA (Home Assistant).
 
 # Gazpar
-Move GrDF Gazpar integration [here](https://github.com/ssenart/home-assistant-gazpar).
+GrDF Gazpar integration has moved [here](https://github.com/ssenart/home-assistant-gazpar).
 
 # Veoliaidf
 
